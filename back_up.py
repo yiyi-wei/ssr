@@ -32,3 +32,6 @@ else:
     with open(f'{backup_dir}/{backup_file}', 'w') as backup:
         backup.write(e.stdout)
     print(f"Backup completed. File saved as {backup_file} in {backup_dir}")
+
+
+https://windll.com/dll/the-openssl-project-httpswwwopensslorg/libcrypto-1-1-x64
