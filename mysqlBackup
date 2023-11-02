@@ -1,0 +1,44 @@
+import paramiko
+import subprocess
+
+# 远程服务器信息
+remote_host = 'your_remote_server_ip'
+remote_port = 22
+remote_user = 'your_remote_username'
+remote_password = 'your_remote_password'
+
+# 本地备份文件路径
+local_backup_file = 'local_backup.sql'
+
+# MySQL连接信息
+mysql_host = 'localhost'
+mysql_user = 'your_mysql_username'
+mysql_password = 'your_mysql_password'
+mysql_database = 'your_mysql_database'
+
+# 远程执行备份操作
+try:
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh_client.connect(remote_host, remote_port, remote_user, remote_password)
+    
+    # 使用 mysqldump 在远程服务器上备份数据库到本地
+    command = f'mysqldump -h {mysql_host} -u {mysql_user} -p{mysql_password} {mysql_database} > {local_backup_file}'
+    stdin, stdout, stderr = ssh_client.exec_command(command)
+    
+    # 检查备份是否成功
+    if not stderr.read():
+        print("MySQL备份成功")
+    else:
+        print("MySQL备份失败")
+except Exception as e:
+    print(f"远程连接或备份过程中发生错误: {str(e)}")
+finally:
+    ssh_client.close()
+
+# 本地恢复备份文件到MySQL
+try:
+    subprocess.call(['mysql', '-u', mysql_user, '-p' + mysql_password, mysql_database, '<', local_backup_file])
+    print("数据库备份已恢复到本地MySQL")
+except Exception as e:
+    print(f"本地恢复备份时发生错误: {str(e)}")
